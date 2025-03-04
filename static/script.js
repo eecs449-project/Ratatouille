@@ -38,13 +38,26 @@ createApp({
 
             this.msgerChat.appendChild(msgDiv);
 
+
             this.scrollToBottom();
         },
 
         botResponse(rawText) {
             $.get("/get", { msg: rawText }).done((data) => {
                 const msgText = data;
+                const messageObjLeft = {
+                    id: Date.now(),
+                    name: this.BOT_NAME,
+                    img: this.BOT_IMG,
+                    side: "left",
+                    text: msgText,
+                };
+                this.chatHistory.push(messageObjLeft);
                 this.appendMessage(this.BOT_NAME, this.BOT_IMG, "left", msgText);
+                sessionStorage.setItem(
+                    "chatHistory",
+                    JSON.stringify(this.chatHistory)
+                );
             });
         },
 
@@ -108,15 +121,6 @@ createApp({
                 this.msgerInput.value = "";
                 //this.appendMessage(this.BOT_NAME, this.BOT_IMG, "left", "Test Message");
                 this.botResponse(msgText);
-                const messageObjLeft = {
-                    id: Date.now(),
-                    name: this.BOT_NAME,
-                    img: this.BOT_IMG,
-                    side: "left",
-                    text: "Test Message",
-                };
-
-                this.chatHistory.push(messageObjLeft);
 
                 sessionStorage.setItem("chatHistory", JSON.stringify(this.chatHistory));
 
