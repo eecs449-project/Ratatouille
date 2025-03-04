@@ -17,6 +17,9 @@ createApp({
             typeIndicator: null,
             isTyping: false,
             typingTimeout: null,
+            cur_num: 0,
+            target_num: 5,
+            disable: false
         };
     },
     methods: {
@@ -33,6 +36,36 @@ createApp({
             )}</div>
                         </div>
                         <div class="msg-text">${text}</div>
+                    </div>
+                `;
+
+            this.msgerChat.appendChild(msgDiv);
+
+
+            this.scrollToBottom();
+        },
+
+        show_eval(name, img, side){
+            const msgDiv = document.createElement("div");
+            msgDiv.classList.add("msg", `${side}-msg`);
+            msgDiv.innerHTML = `
+                    <img class="msg-img" src="${img}">
+                    <div class="msg-bubble">
+                        <div class="msg-info">
+                            <div class="msg-info-name">${name}</div>
+                            <div class="msg-info-time">${this.formatDate(
+                                new Date()
+                            )}</div>
+                        </div>
+                        <div class="msg-text">
+                            <p>If you think I can do better in helping you make dishes, please use the below entry to 
+                                give me more recipes! To disable this feedback function in your future response, please input '/disable'.
+                                (Input '/enable' to reactivate this feature)</p>
+                            <form action = "/upload" method=post enctype=multipart/form-data>
+                                <input type=file name=file>
+                                <button  class = "btn btn-warning" type = "submit" style = "margin-left:25px" >Submit!</button>
+                            </form>
+                        </div>
                     </div>
                 `;
 
@@ -109,7 +142,36 @@ createApp({
                 const msgText = this.msgerInput.value;
                 if (!msgText) return;
 
-                this.appendMessage(this.USER_NAME, this.USER_IMG, "right", msgText);
+                this.msgerInput.value = "";
+                this.appendMessage(
+                    this.USER_NAME,
+                    this.USER_IMG,
+                    "right",
+                    msgText
+                );
+
+                if (msgText === "/disable"){
+                    this.appendMessage(
+                        this.BOT_NAME,
+                        this.BOT_IMG,
+                        "left",
+                        "Feedback feature has been successfully disabled!"
+                    );
+                    this.disable = true;
+                    return;
+                }
+                else if (msgText === "/enable"){
+                    this.appendMessage(
+                        this.BOT_NAME,
+                        this.BOT_IMG,
+                        "left",
+                        "Feedback feature has been successfully reactivated"
+                    );
+                    this.disable = false;
+                    this.cur_num = 0;
+                    return;
+                }
+
                 const messageObjRight = {
                     id: Date.now(),
                     name: this.USER_NAME,
@@ -118,9 +180,13 @@ createApp({
                     text: msgText,
                 }
                 this.chatHistory.push(messageObjRight);
-                this.msgerInput.value = "";
                 //this.appendMessage(this.BOT_NAME, this.BOT_IMG, "left", "Test Message");
                 this.botResponse(msgText);
+                this.cur_num ++;
+                if (this.cur_num === this.target_num && !this.disable) {
+                    this.show_eval(this.BOT_NAME, this.BOT_IMG, "left")
+                    this.cur_num = 0;
+                } 
 
                 sessionStorage.setItem("chatHistory", JSON.stringify(this.chatHistory));
 
