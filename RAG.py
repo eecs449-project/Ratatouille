@@ -5,7 +5,7 @@ from langchain_community.document_loaders import UnstructuredMarkdownLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import SentenceTransformerEmbeddings
-from embed import ZhipuAIEmbeddings
+from embed import GeminiAIEmbeddings
 
 _ = load_dotenv(find_dotenv())
 
@@ -49,7 +49,7 @@ def slice_docs(texts):
 
 class VectorDB:
     # embedding = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    embedding = ZhipuAIEmbeddings()
+    embedding = GeminiAIEmbeddings()
     persist_directory = 'vector_database/chroma'
     slice = 20
 

@@ -23,7 +23,7 @@ def home():
 @app.route("/get")
 def get_bot_response():
     userText = request.args.get('msg')
-    return str(AIBOT.get_zhipuai_response(userText))
+    return str(AIBOT.get_response(userText))
 
 
 # 检查文件扩展名是否合法

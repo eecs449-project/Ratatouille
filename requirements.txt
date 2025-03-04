@@ -1,5 +1,5 @@
 flask
-zhipuai
+google-genai
 python-dotenv
 langchain_community
 langchain
