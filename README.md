@@ -1,6 +1,8 @@
 # Ratatouille
 
-Run source venv/bin/activate to start the virtual environment
+Run the following code to the virtual environment before running the main app.
+```bash
+source venv/bin/activate
 
 
 ## Important Setup ##
