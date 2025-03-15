@@ -91,6 +91,10 @@ createApp({
                     "chatHistory",
                     JSON.stringify(this.chatHistory)
                 );
+                if (this.cur_num === this.target_num && !this.disable) {
+                    this.show_eval(this.BOT_NAME, this.BOT_IMG, "left");
+                    this.cur_num = 0;
+                } 
             });
         },
 
@@ -183,10 +187,6 @@ createApp({
                 //this.appendMessage(this.BOT_NAME, this.BOT_IMG, "left", "Test Message");
                 this.botResponse(msgText);
                 this.cur_num ++;
-                if (this.cur_num === this.target_num && !this.disable) {
-                    this.show_eval(this.BOT_NAME, this.BOT_IMG, "left")
-                    this.cur_num = 0;
-                } 
 
                 sessionStorage.setItem("chatHistory", JSON.stringify(this.chatHistory));
 
