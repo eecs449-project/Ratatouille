@@ -53,7 +53,8 @@ def get_response(prompt):
 
     response = client.models.generate_content(
         model=model,
-        contents=prompt
+        contents=prompt,
+        system_instruction="You are a Chef that knows all recipes in the world."
     )
     try:
         answer = response.text
