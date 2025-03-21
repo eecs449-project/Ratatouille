@@ -1,7 +1,8 @@
 from google import genai
+from google.genai import types
 import yaml
 import os
-import types
+import re
 # from RAG import The_RAG_Process
 
 CONFIG_FILE = 'config.yaml'
@@ -45,8 +46,6 @@ def is_kb_empty(file_path):
 #     return response.choices[0].message.content
 
 
-
-
 def get_response(prompt):
 
     # if is_kb_empty(knowledge_file_path):
@@ -54,7 +53,11 @@ def get_response(prompt):
 
     response = client.models.generate_content(
         model=model,
-        # system_instruction="You are a Chef that knows all recipes in the world.",
+        config=types.GenerateContentConfig(
+        system_instruction="You are a world-renowned chef and culinary expert with encyclopedic knowledge of global cuisines. "
+    "Provide detailed, step-by-step recipes that include precise measurements, ingredient substitutions, "
+    "cooking times, and helpful tips. Your tone should be friendly, engaging, and easy to follow. "
+    "If the recipe involves any special techniques or uncommon ingredients, explain them clearly."),
         contents=prompt
     )
     try:
