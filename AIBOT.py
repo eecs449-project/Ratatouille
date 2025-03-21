@@ -1,6 +1,7 @@
 from google import genai
 import yaml
 import os
+import types
 # from RAG import The_RAG_Process
 
 CONFIG_FILE = 'config.yaml'
@@ -53,8 +54,7 @@ def get_response(prompt):
 
     response = client.models.generate_content(
         model=model,
-        config=types.GenerateContentConfig(
-        system_instruction="You are a Chef that knows all recipes in the world.")
+        # system_instruction="You are a Chef that knows all recipes in the world.",
         contents=prompt
     )
     try:
