@@ -77,6 +77,10 @@ createApp({
             } else if (botResponse) {
                 this.recentSearches[this.recentSearches.length - 1].botResponse =
                 botResponse;
+                sessionStorage.setItem(
+                    "searchHistory",
+                    JSON.stringify(this.recentSearches)
+                );
                 this.renderRecentSearches();
             }
         },
@@ -89,6 +93,7 @@ createApp({
         deleteHistory() {
             console.log("called delete");
             sessionStorage.removeItem("chatHistory");
+            sessionStorage.removeItem("searchHistory");
             this.chatHistory = [];
             this.recentSearches = [];
             window.location.href = "/";
@@ -221,6 +226,14 @@ createApp({
             this.scrollToBottom();
         }
         },
+        loadSearchHistory(){
+        const savedSearchHistory = sessionStorage.getItem("searchHistory");
+        if (savedSearchHistory) {
+            this.recentSearches = JSON.parse(savedSearchHistory);
+            console.log(this.recentSearches);
+            this.renderRecentSearches();
+        }
+    }
     },
 
     mounted() {
@@ -285,6 +298,7 @@ createApp({
 
         this.scrollToBottom();
         this.loadChatHistory();
+        this.loadSearchHistory();
         });
     },
     }).mount("#app");
