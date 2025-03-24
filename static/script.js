@@ -3,31 +3,40 @@ const { createApp } = Vue;
 createApp({
     data() {
         return {
-        appName: "Ratatouille",
-        welcomeText:
-            "Hi, welcome to Ratatouille! Go ahead and send me a message:)",
-        chatHistory: [],
-        msgerForm: null,
-        msgerInput: null,
-        msgerChat: null,
-        BOT_IMG: "../static/images/bot_img.jpg",
-        USER_IMG: "../static/images/userimg.png",
-        BOT_NAME: "The Chef",
-        USER_NAME: "You",
-        typeIndicator: null,
-        isTyping: false,
-        typingTimeout: null,
-        cur_num: 0,
-        target_num: 5,
-        disable: false,
-        delete_button: null,
-        recentSearches: [],
-        list_group: null,
-        isDisabled: false
+            appName: "Ratatouille",
+            welcomeText:
+                "Hi, welcome to Ratatouille! Go ahead and send me a message:)",
+            chatHistory: [],
+            msgerForm: null,
+            msgerInput: null,
+            msgerChat: null,
+            BOT_IMG: "../static/images/bot_img.jpg",
+            USER_IMG: "../static/images/userimg.png",
+            BOT_NAME: "The Chef",
+            USER_NAME: "You",
+            typeIndicator: null,
+            isTyping: false,
+            typingTimeout: null,
+            cur_num: 0,
+            target_num: 5,
+            disable: false,
+            delete_button: null,
+            recentSearches: [],
+            list_group: null,
+            isDisabled: false,
+            suggestions: [
+                "Give me a quick dinner idea.",
+                "Teach me how to sauté onions.",
+                "Give me a fun food fact.",
+                "What can I make with rice and eggs?",
+            ],
+            have_input: false,
+            from_suggestion: false
         };
     },
     methods: {
         appendMessage(name, img, side, text) {
+        const new_text = marked.parse(text);
         const msgDiv = document.createElement("div");
         msgDiv.classList.add("msg", `${side}-msg`);
         msgDiv.innerHTML = `
@@ -36,21 +45,28 @@ createApp({
                             <div class="msg-info">
                                 <div class="msg-info-name">${name}</div>
                                 <div class="msg-info-time">${this.formatDate(
-                                new Date()
+                                    new Date()
                                 )}</div>
                             </div>
-                            <div class="msg-text">${text}</div>
+                            <div class="msg-text">${new_text}</div>
                         </div>
                     `;
 
         this.msgerChat.appendChild(msgDiv);
 
-        if (side === "right" && text !== "/disable" && text !== "/enable") {
-            this.updateRecentSearches(text, null);
+        if (side === "right" && new_text !== "/disable" && new_text !== "/enable") {
+            this.updateRecentSearches(new_text, null);
         }
 
         this.scrollToBottom(); 
         },
+
+        // parseMarkdown(text) {
+        //     return text
+        //         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // **bold**
+        //         .replace(/\*(.*?)\*/g, '<i>$1</i>')
+        //         .replace(/\*/g, "");           
+        //     },
 
         updateRecentSearches(userSearch, botResponse) {
             if (userSearch) {
@@ -63,6 +79,11 @@ createApp({
                 botResponse;
                 this.renderRecentSearches();
             }
+        },
+
+        useSuggestion(suggestion){
+            this.from_suggestion = true;
+            this.botResponse(suggestion);
         },
 
         deleteHistory() {
@@ -145,9 +166,11 @@ createApp({
         botResponse(rawText) {
         this.isDisabled = true;
         $.get("/get", { msg: rawText }).done((data) => {
+            console.log(rawText, data);
             this.isDisabled = false;
             const msgText = data;
-            this.updateRecentSearches(null, msgText);
+            if(!this.from_suggestion) this.updateRecentSearches(null, msgText);
+            this.from_suggestion = false;
             const messageObjLeft = {
             id: Date.now(),
             name: this.BOT_NAME,
@@ -215,7 +238,7 @@ createApp({
 
         this.msgerForm.addEventListener("submit", (event) => {
             event.preventDefault();
-
+            this.have_input = true;
             const msgText = this.msgerInput.value;
             if (!msgText) return;
 
