@@ -57,9 +57,9 @@
         <p id="typeIndicator" v-show="isTyping">User is typing...</p>
       </div>
       <form class="msger-inputarea">  
-          <input type="text" class="msger-input" id="textInput" placeholder="Enter your message..." @input = "changeHelper">
+          <input type="text" class="msger-input" id="textInput" placeholder="Enter your message..." @input = "changeHelper" :disabled = "isDisabled">
           <!-- <button type="submit" class="msger-send-btn">Send</button> -->
-          <button  class = "btn btn-primary" type = "submit" >Send</button>
+          <button  class = "btn btn-primary" type = "submit" :disabled = "isDisabled">Send</button>
       </form>
   </div>
 

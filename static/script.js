@@ -23,6 +23,7 @@ createApp({
         delete_button: null,
         recentSearches: [],
         list_group: null,
+        isDisabled: false
         };
     },
     methods: {
@@ -44,11 +45,11 @@ createApp({
 
         this.msgerChat.appendChild(msgDiv);
 
-        if (side === "right") {
+        if (side === "right" && text !== "/disable" && text !== "/enable") {
             this.updateRecentSearches(text, null);
         }
 
-        this.scrollToBottom();
+        this.scrollToBottom(); 
         },
 
         updateRecentSearches(userSearch, botResponse) {
@@ -57,10 +58,10 @@ createApp({
                 this.recentSearches.shift();
                 }
                 this.recentSearches.push({ userSearch, botResponse: null });
-                this.renderRecentSearches();
             } else if (botResponse) {
                 this.recentSearches[this.recentSearches.length - 1].botResponse =
                 botResponse;
+                this.renderRecentSearches();
             }
         },
 
@@ -79,7 +80,7 @@ createApp({
                 (search, index) => `
                     <a href="#" class="list-group-item list-group-item-action" data-index="${index}">
                         ${search.userSearch}
-                    </a>
+                    </a> 
                 `
             )
             .join("");
@@ -142,7 +143,9 @@ createApp({
         },
 
         botResponse(rawText) {
+        this.isDisabled = true;
         $.get("/get", { msg: rawText }).done((data) => {
+            this.isDisabled = false;
             const msgText = data;
             this.updateRecentSearches(null, msgText);
             const messageObjLeft = {
@@ -173,7 +176,7 @@ createApp({
         clearTimeout(this.typingTimeout);
         this.typingTimeout = setTimeout(() => {
             this.isTyping = false;
-        }, 1000);
+        }, 666);
         },
 
         scrollToBottom() {
