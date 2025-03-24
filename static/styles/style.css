@@ -154,6 +154,7 @@ body {
 
 #typeIndicator{
   display: hidden;
+  height: 10px;
 }
 
 #delete{
@@ -198,4 +199,9 @@ body {
 
 #placeholder{
   font-size: 15px
+}
+
+#thinkIndicator{
+  display: hidden;
+  height: 10px;
 }

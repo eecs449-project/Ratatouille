@@ -55,8 +55,13 @@
 
       
       <div>
-        <p id="typeIndicator" v-show="isTyping">User is typing...</p>
+        <p id="typeIndicator" v-show="isTyping && !isDisabled">User is typing...</p>
       </div>
+
+      <div>
+        <p id="thinkIndicator" v-show="isDisabled">The Chef is thinking...</p>
+      </div>
+      
       <form class="msger-inputarea">  
           <input type="text" class="msger-input" id="textInput" placeholder="Enter your message..." @input = "changeHelper" :disabled = "isDisabled">
           <!-- <button type="submit" class="msger-send-btn">Send</button> -->
