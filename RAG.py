@@ -5,10 +5,23 @@ from langchain_community.document_loaders import UnstructuredMarkdownLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import SentenceTransformerEmbeddings
-from embed import GeminiAIEmbeddings
+from embedding import GeminiAIEmbeddings
+from google import genai
+import yaml
 
+CONFIG_FILE = 'config.yaml'
+
+with open(CONFIG_FILE, 'r') as config_file:
+    config = yaml.load(config_file,Loader=yaml.FullLoader)
 _ = load_dotenv(find_dotenv())
 
+import logging
+
+# Set higher logging levels for noisy libraries
+logging.getLogger('chromadb').setLevel(logging.WARNING)
+logging.getLogger('sentence_transformers').setLevel(logging.WARNING)
+logging.getLogger('httpx').setLevel(logging.WARNING)
+logging.getLogger('urllib3').setLevel(logging.WARNING)
 
 # os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7890'
 # os.environ["HTTP_PROXY"] = 'http://127.0.0.1:7890'
@@ -98,4 +111,11 @@ def The_RAG_Process(question):
     # 最大边际相关性(MMR) 检索
 
     # 返回这个给大模型？
-    return vdb.mmr_search(question)
+    doc_list = vdb.mmr_search(question)
+    prompt = question
+    prompt += "\nHere are some context information:\n"
+    for sim_doc in doc_list:
+        prompt += sim_doc.page_content[:200]
+        prompt += "\n"
+    print(prompt)
+    return prompt

@@ -3,3 +3,4 @@ google-genai
 python-dotenv
 langchain_community
 langchain
+chromadb
