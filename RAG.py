@@ -62,12 +62,12 @@ class VectorDB:
     # embedding = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     embedding = GeminiAIEmbeddings()
     persist_directory = 'vector_database/chroma'
-    slice = 20
+    slice = 30
 
     def __init__(self, sliced_docs: list = None):
         assert sliced_docs is not None
         self.vectordb = Chroma.from_documents(
-            documents=sliced_docs[:self.slice],  # 为了速度，只选择前 20 个切分的 doc 进行生成；使用千帆时因QPS限制，建议选择前 5 个doc
+            documents=sliced_docs[:self.slice],
             embedding=self.embedding,
             persist_directory=self.persist_directory  # 允许我们将persist_directory目录保存到磁盘上
         )
@@ -102,18 +102,12 @@ def The_RAG_Process(question):
     vdb = VectorDB(sliced_docs)
     # 向量持久化存储
     vdb.persist()
-    # 定义问题
-    # question = "什么是大语言模型"
-    # 相似度检索
-    # vdb.sim_search(question)
-    # 最大边际相关性(MMR) 检索
 
-    # 返回这个给大模型？
     doc_list = vdb.mmr_search(question)
     prompt = question
     prompt += "\nHere are some context information:\n"
     for sim_doc in doc_list:
-        prompt += sim_doc.page_content[:200]
+        prompt += sim_doc.page_content[:300]
         prompt += "\n"
     print(prompt)
     return prompt
