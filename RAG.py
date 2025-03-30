@@ -107,7 +107,7 @@ def The_RAG_Process(question):
     prompt = question
     prompt += "\nHere are some context information:\n"
     for sim_doc in doc_list:
-        prompt += sim_doc.page_content[:300]
+        prompt += sim_doc.page_content[:400]
         prompt += "\n"
     print(prompt)
     return prompt
