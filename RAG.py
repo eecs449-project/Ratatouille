@@ -4,9 +4,7 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.document_loaders import UnstructuredMarkdownLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import SentenceTransformerEmbeddings
 from embedding import GeminiAIEmbeddings
-from google import genai
 import yaml
 
 CONFIG_FILE = 'config.yaml'

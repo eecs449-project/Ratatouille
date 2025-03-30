@@ -2,8 +2,7 @@ from google import genai
 from google.genai import types
 import yaml
 import os
-import re
-import rag
+from rag import The_RAG_Process
 
 CONFIG_FILE = 'config.yaml'
 
@@ -25,7 +24,7 @@ def get_response(prompt):
     # **检查知识库是否为空**
     if os.path.exists(knowledge_base_path) and os.listdir(knowledge_base_path):
         print("知识库不为空，使用 RAG 处理用户问题。")
-        prompt = rag.The_RAG_Process(prompt)  # **使用 RAG 处理 prompt**
+        prompt = The_RAG_Process(prompt)  # **使用 RAG 处理 prompt**
     else:
         print("知识库为空，直接用 LLM 生成回答。")
 
