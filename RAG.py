@@ -50,6 +50,7 @@ def exec_load(loaders: list) -> list:
     for loader in loaders:
         original = loader.load()
         for doc in original:
+            # Filter out lines that start with common picture captions
             doc.page_content = re.sub(r"\\n", " ", doc.page_content)
         texts.extend(original)
     return texts
@@ -57,7 +58,7 @@ def exec_load(loaders: list) -> list:
 
 def slice_docs(texts):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000, chunk_overlap=100)
+        chunk_size=1000, chunk_overlap=50)
     return text_splitter.split_documents(texts)
 
 
@@ -65,7 +66,7 @@ class VectorDB:
     # embedding = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
     embedding = GeminiAIEmbeddings()
     persist_directory = 'vector_database/chroma'
-    slice = 30
+    slice = 20
 
     def __init__(self, sliced_docs: list = None):
         assert sliced_docs is not None
