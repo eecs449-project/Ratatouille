@@ -57,7 +57,7 @@ def exec_load(loaders: list) -> list:
 
 def slice_docs(texts):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000, chunk_overlap=50)
+        chunk_size=1000, chunk_overlap=100)
     return text_splitter.split_documents(texts)
 
 
