@@ -6,7 +6,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from embedding import GeminiAIEmbeddings
 import yaml
-
+import re
 CONFIG_FILE = 'config.yaml'
 
 with open(CONFIG_FILE, 'r') as config_file:
@@ -23,7 +23,7 @@ logging.getLogger('urllib3').setLevel(logging.WARNING)
 
 # os.environ['HTTPS_PROXY'] = 'http://127.0.0.1:7890'
 # os.environ["HTTP_PROXY"] = 'http://127.0.0.1:7890'
-
+    
 # 获取folder_path下所有文件路径，储存在file_paths里
 def generate_path(folder_path: str = 'knowledge_base') -> list:
     file_paths = []
@@ -48,13 +48,16 @@ def generate_loaders(file_paths: list) -> list:
 def exec_load(loaders: list) -> list:
     texts = []
     for loader in loaders:
-        texts.extend(loader.load())
+        original = loader.load()
+        for doc in original:
+            doc.page_content = re.sub(r"\\n", " ", doc.page_content)
+        texts.extend(original)
     return texts
 
 
 def slice_docs(texts):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500, chunk_overlap=50)
+        chunk_size=1000, chunk_overlap=50)
     return text_splitter.split_documents(texts)
 
 
@@ -79,13 +82,13 @@ class VectorDB:
     def sim_search(self, query, k=3):
         sim_docs = self.vectordb.similarity_search(query, k=k)
         for i, sim_doc in enumerate(sim_docs, start=1):
-            print(f"检索到的第{i}个内容: \n{sim_doc.page_content[:200]}", end="\n--------------\n")
+            print(f"检索到的第{i}个内容: \n{sim_doc.page_content[:1000]}", end="\n--------------\n")
         return sim_docs
 
     def mmr_search(self, query, k=3):
         mmr_docs = self.vectordb.max_marginal_relevance_search(query, k=k)
         for i, sim_doc in enumerate(mmr_docs, start=1):
-            print(f"MMR 检索到的第{i}个内容: \n{sim_doc.page_content[:200]}", end="\n--------------\n")
+            print(f"MMR 检索到的第{i}个内容: \n{sim_doc.page_content[:1000]}", end="\n--------------\n")
         return mmr_docs
 
 
@@ -107,7 +110,7 @@ def The_RAG_Process(question):
     prompt = question
     prompt += "\nHere are some context information:\n"
     for sim_doc in doc_list:
-        prompt += sim_doc.page_content[:400]
+        prompt += sim_doc.page_content[:1000]
         prompt += "\n"
     print(prompt)
     return prompt
