@@ -97,11 +97,9 @@ class VectorDB:
         2. Re-ranks using TF-IDF similarity.
         3. Deduplicates results to ensure the returned contexts are distinct.
         """
-        # Fetch more candidates than needed.
         candidate_docs = self.vectordb.similarity_search(query, k=k * 5)
         candidate_texts = [doc.page_content for doc in candidate_docs]
 
-        # Compute TF-IDF representations.
         vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform(candidate_texts)
         query_vec = vectorizer.transform([query])
@@ -115,21 +113,17 @@ class VectorDB:
         # Deduplicate: iterate over ranked candidates and select documents that are not too similar.
         selected_indices = []
         for idx in ranked_indices:
-            # If no documents have been selected yet, add the first candidate.
             if not selected_indices:
                 selected_indices.append(idx)
             else:
                 current_vector = tfidf_matrix[idx]
-                # Compare current candidate with all previously selected ones.
                 selected_vectors = tfidf_matrix[selected_indices]
                 similarities = cosine_similarity(current_vector, selected_vectors)
                 if similarities.max() < dedup_threshold:
                     selected_indices.append(idx)
-            # Stop if we have selected k documents.
             if len(selected_indices) == k:
                 break
 
-        # Retrieve the final list of documents.
         hybrid_docs = [candidate_docs[i] for i in selected_indices]
         for i, doc in enumerate(hybrid_docs, start=1):
             print(f"Hybrid 检索到的第{i}个内容: \n{doc.page_content[:1000]}", end="\n--------------\n")
