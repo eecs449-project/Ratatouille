@@ -6,6 +6,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from embedding import GeminiAIEmbeddings
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import yaml
 import re
 import numpy as np
@@ -89,25 +90,47 @@ class VectorDB:
             print(f"MMR 检索到的第{i}个内容: \n{mmr_doc.page_content[:1000]}", end="\n--------------\n")
         return mmr_docs
 
-    def hybrid_search(self, query, k=3):
+    def hybrid_search(self, query, k=3, dedup_threshold=0.95):
         """
-        Hybrid search combines dense similarity retrieval with a
-        sparse (TF-IDF) re-ranking step.
+        Hybrid search method that:
+        1. Retrieves extra candidates using dense similarity search.
+        2. Re-ranks using TF-IDF similarity.
+        3. Deduplicates results to ensure the returned contexts are distinct.
         """
-        candidate_docs = self.vectordb.similarity_search(query, k=k * 3)
-
+        # Fetch more candidates than needed.
+        candidate_docs = self.vectordb.similarity_search(query, k=k * 5)
         candidate_texts = [doc.page_content for doc in candidate_docs]
 
+        # Compute TF-IDF representations.
         vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform(candidate_texts)
-
         query_vec = vectorizer.transform([query])
         
+        # Calculate cosine similarity scores between each candidate and the query.
         cosine_scores = (tfidf_matrix * query_vec.T).toarray().flatten()
 
-        ranked_indices = np.argsort(cosine_scores)[::-1][:k]
-        hybrid_docs = [candidate_docs[i] for i in ranked_indices]
+        # Get indices sorted by TF-IDF cosine score in descending order.
+        ranked_indices = np.argsort(cosine_scores)[::-1]
 
+        # Deduplicate: iterate over ranked candidates and select documents that are not too similar.
+        selected_indices = []
+        for idx in ranked_indices:
+            # If no documents have been selected yet, add the first candidate.
+            if not selected_indices:
+                selected_indices.append(idx)
+            else:
+                current_vector = tfidf_matrix[idx]
+                # Compare current candidate with all previously selected ones.
+                selected_vectors = tfidf_matrix[selected_indices]
+                similarities = cosine_similarity(current_vector, selected_vectors)
+                if similarities.max() < dedup_threshold:
+                    selected_indices.append(idx)
+            # Stop if we have selected k documents.
+            if len(selected_indices) == k:
+                break
+
+        # Retrieve the final list of documents.
+        hybrid_docs = [candidate_docs[i] for i in selected_indices]
         for i, doc in enumerate(hybrid_docs, start=1):
             print(f"Hybrid 检索到的第{i}个内容: \n{doc.page_content[:1000]}", end="\n--------------\n")
         return hybrid_docs
@@ -122,7 +145,7 @@ def The_RAG_Process(question):
 
     # doc_list = vdb.mmr_search(question)
 
-    doc_list = vdb.hybrid_search(question, k=3)
+    doc_list = vdb.hybrid_search(question, k=3, dedup_threshold=0.95)
 
     prompt = question + "\nHere are some context information:\n"
     for sim_doc in doc_list:
