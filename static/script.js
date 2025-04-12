@@ -169,7 +169,6 @@ createApp({
         },
 
         botResponse(rawText) {
-        this.isDisabled = true;
         $.get("/get", { msg: rawText }).done((data) => {
             console.log(rawText, data);
             this.isDisabled = false;
