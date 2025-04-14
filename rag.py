@@ -141,9 +141,9 @@ def The_RAG_Process(question):
 
     doc_list = vdb.hybrid_search(question, k=3, dedup_threshold=0.90)
 
-    prompt = "Here is the user's question:\n" + question + "\nAnd here are some context information retreived:\n"
+    prompt = f"Here is the user's question:\n" + question + "\nAnd here are some recipes we retreived:\n"
     for i, doc in enumerate(doc_list, start=1):
-        prompt += f"Context information No.{i}:\n"
+        prompt += f"Recipes No.{i}:\n"
         prompt += doc.page_content[:1000] + "\n"
     
     print(prompt)
