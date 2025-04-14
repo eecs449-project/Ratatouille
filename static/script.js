@@ -94,6 +94,8 @@ createApp({
             console.log("called delete");
             sessionStorage.removeItem("chatHistory");
             sessionStorage.removeItem("searchHistory");
+            sessionStorage.removeItem("count");
+            this.cur_num = 0;
             this.chatHistory = [];
             this.recentSearches = [];
             window.location.href = "/";
@@ -140,6 +142,7 @@ createApp({
         },
 
         show_eval(name, img, side) {
+        console.log("Print eval")
         const msgDiv = document.createElement("div");
         msgDiv.classList.add("msg", `${side}-msg`);
         msgDiv.innerHTML = `
@@ -169,6 +172,7 @@ createApp({
         },
 
         botResponse(rawText) {
+        this.isDisabled = true;
         $.get("/get", { msg: rawText }).done((data) => {
             console.log(rawText, data);
             this.isDisabled = false;
@@ -232,10 +236,20 @@ createApp({
             console.log(this.recentSearches);
             this.renderRecentSearches();
         }
-    }
+        },
+        loadCount(){
+        const savedCount = sessionStorage.getItem("count");
+        if (savedCount) {
+            this.cur_num = JSON.parse(savedCount);
+            console.log(this.cur_num);
+        }else{
+            this.cur_num = 0;
+        }
+        }
     },
 
     mounted() {
+        console.log(this.isDisabled)
         this.$nextTick(() => {
         this.msgerForm = document.querySelector(".msger-inputarea");
         this.msgerInput = document.querySelector(".msger-input");
@@ -249,6 +263,7 @@ createApp({
         });
 
         this.msgerForm.addEventListener("submit", (event) => {
+            console.log(this.cur_num);
             event.preventDefault();
             this.have_input = true;
             const msgText = this.msgerInput.value;
@@ -274,7 +289,7 @@ createApp({
                 "Feedback feature has been successfully reactivated"
             );
             this.disable = false;
-            this.cur_num = 0;
+            this.cur_num = 0;  //After we reactivate the function, we need to reset the counter.
             return;
             }
 
@@ -291,6 +306,7 @@ createApp({
             this.cur_num++;
 
             sessionStorage.setItem("chatHistory", JSON.stringify(this.chatHistory));
+            sessionStorage.setItem("count", JSON.stringify(this.cur_num));
 
             this.scrollToBottom();
         });
@@ -298,6 +314,7 @@ createApp({
         this.scrollToBottom();
         this.loadChatHistory();
         this.loadSearchHistory();
+        this.loadCount();
         });
     },
     }).mount("#app");
