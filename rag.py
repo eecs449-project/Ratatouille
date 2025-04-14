@@ -139,11 +139,12 @@ def The_RAG_Process(question):
 
     # doc_list = vdb.mmr_search(question)
 
-    doc_list = vdb.hybrid_search(question, k=3, dedup_threshold=0.95)
+    doc_list = vdb.hybrid_search(question, k=3, dedup_threshold=0.90)
 
-    prompt = question + "\nHere are some context information:\n"
-    for sim_doc in doc_list:
-        prompt += sim_doc.page_content[:1000] + "\n"
+    prompt = "Here is the user's question:\n" + question + "\nAnd here are some context information retreived:\n"
+    for i, doc in enumerate(doc_list, start=1):
+        prompt += f"Context information No.{i}:\n"
+        prompt += doc.page_content[:1000] + "\n"
     
     print(prompt)
     return prompt
