@@ -97,7 +97,7 @@ class VectorDB:
         2. Re-ranks using TF-IDF similarity.
         3. Deduplicates results to ensure the returned contexts are distinct.
         """
-        candidate_docs = self.vectordb.similarity_search(query, k=k * 5)
+        candidate_docs = self.vectordb.max_marginal_relevance_search(query, k=k * 5)
         candidate_texts = [doc.page_content for doc in candidate_docs]
 
         vectorizer = TfidfVectorizer()
